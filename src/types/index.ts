@@ -155,6 +155,13 @@ export interface ProtocolStats {
   defaultRate: number;
 }
 
+export interface StakeAccount {
+  owner: string;
+  amount: string;
+  stakedAt: number;
+  pendingRewards: string;
+}
+
 export interface LendingPoolInfo {
   mint: string;
   symbol: string;

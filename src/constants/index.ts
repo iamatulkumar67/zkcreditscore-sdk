@@ -8,6 +8,7 @@ export const SOLANA_PROGRAM_ID = {
   verifier: 'ZKVrf1111111111111111111111111111111111',
   lendingPool: 'ZKPool111111111111111111111111111111111',
   credential: 'ZKVrf1111111111111111111111111111111111',
+  zkcToken: 'ZKCToken1111111111111111111111111111111',
 };
 
 export const CREDIT_TIERS: Record<CreditTier, TierConfig> = {
@@ -143,4 +144,21 @@ export const ACCOUNT_SEEDS = {
   vault: 'vault',
   config: 'config',
   nullifier: 'nullifier',
+  mint: 'mint',
+  stake: 'stake',
+  stakingVault: 'staking-vault',
+  treasury: 'treasury',
 };
+
+export const ZKC_DECIMALS = 9;
+export const ZKC_MIN_STAKE = 1_000_000_000_000;
+export const ZKC_TOTAL_SUPPLY = 1_000_000_000_000_000_000;
+export const STAKING_REWARD_RATE_BPS = 500;
+export const SECONDS_IN_YEAR = 31_536_000;
+export const FEE_DISCOUNT_TIERS = [
+  { minStake: 0, discount: 0 },
+  { minStake: 10_000_000_000_000, discount: 1000 },
+  { minStake: 100_000_000_000_000, discount: 2000 },
+  { minStake: 500_000_000_000_000, discount: 2500 },
+  { minStake: 1_000_000_000_000_000, discount: 3000 },
+];
