@@ -1,0 +1,53 @@
+{
+  "name": "@zkcreditscore/sdk",
+  "version": "0.1.0",
+  "description": "ZKCreditScore Protocol SDK — Privacy-preserving credit scoring on Solana",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc --project tsconfig.json --module ES6 --outDir dist/esm",
+    "build:cjs": "tsc --project tsconfig.json --module CommonJS --outDir dist/cjs",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/",
+    "test": "jest --passWithNoTests",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "solana",
+    "anchor",
+    "zkp",
+    "zero-knowledge",
+    "credit-score",
+    "defi",
+    "lending",
+    "groth16",
+    "circom"
+  ],
+  "author": "ZKCreditScore Protocol",
+  "license": "MIT",
+  "peerDependencies": {
+    "@coral-xyz/anchor": "^30.0.0",
+    "@solana/web3.js": "^2.0.0",
+    "@solana/spl-token": "^0.4.0"
+  },
+  "optionalDependencies": {
+    "snarkjs": "^0.7.0",
+    "circomlibjs": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
