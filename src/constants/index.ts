@@ -5,10 +5,11 @@ export const PROTOCOL_VERSION = '0.1.0';
 export const SDK_VERSION = '0.1.0';
 
 export const SOLANA_PROGRAM_ID = {
-  verifier: 'ZKVrf1111111111111111111111111111111111',
-  lendingPool: 'ZKPool111111111111111111111111111111111',
-  credential: 'ZKVrf1111111111111111111111111111111111',
-  zkcToken: 'ZKCToken1111111111111111111111111111111',
+  verifier: '9fx3329hTirtrGA77bQ3qTQMHgkcYbiMJTSbY1kSK1Kh',
+  lendingPool: 'HbHw6ib3eCfxbV1tv7X817VZ9J9tR4ZLGpNEQJ2jYDQo',
+  credential: '9fx3329hTirtrGA77bQ3qTQMHgkcYbiMJTSbY1kSK1Kh',
+  zkcToken: '4A1AR7H5VHQzwM7QuucYDHKTrQWt9HQ1GyEB4gh4pump',
+  governance: '4FE94XY5Az6fS2PCBxd2PZtzPq5EiXYT5EFPzYj53QkT',
 };
 
 export const CREDIT_TIERS: Record<CreditTier, TierConfig> = {
