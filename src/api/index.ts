@@ -10,7 +10,7 @@ export class ZKCreditAPI {
   private apiKey?: string;
 
   constructor(config?: APIClientConfig) {
-    this.baseUrl = config?.baseUrl || 'https://api.zkcreditscore.io/v1';
+    this.baseUrl = config?.baseUrl || 'https://api.zkscore.credit/v1';
     this.apiKey = config?.apiKey;
   }
 

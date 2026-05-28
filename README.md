@@ -71,7 +71,7 @@ import {
 // 1. Initialize the ZK Prover (client-side proof generation)
 const prover = new ZKProver();
 await prover.init({
-  circuitsUrl: 'https://circuits.zkcreditscore.io/v1',
+  circuitsUrl: 'https://circuits.zkscore.credit/v1',
 });
 
 // 2. Connect to Solana with a wallet
@@ -132,8 +132,8 @@ import { ZKProver, ClaimType } from '@zkcreditscore/sdk';
 
 const prover = new ZKProver();
 await prover.init({
-  circuitsUrl: 'https://circuits.zkcreditscore.io/v1',
-  backendUrl: 'https://api.zkcreditscore.io/v1', // optional TEE fallback
+  circuitsUrl: 'https://circuits.zkscore.credit/v1',
+  backendUrl: 'https://api.zkscore.credit/v1', // optional TEE fallback
 });
 
 // Single claim proof
@@ -277,7 +277,7 @@ REST API client for querying off-chain protocol data.
 import { ZKCreditAPI } from '@zkcreditscore/sdk';
 
 const api = new ZKCreditAPI({
-  baseUrl: 'https://api.zkcreditscore.io/v1',
+  baseUrl: 'https://api.zkscore.credit/v1',
   apiKey: 'your-api-key', // optional
 });
 
@@ -446,7 +446,7 @@ import { ZKProver, SolanaSDK, ClaimType, CreditTier } from '@zkcreditscore/sdk';
 async function fullFlow(wallet: any) {
   // Initialize
   const prover = new ZKProver();
-  await prover.init({ circuitsUrl: 'https://circuits.zkcreditscore.io/v1' });
+  await prover.init({ circuitsUrl: 'https://circuits.zkscore.credit/v1' });
 
   const solana = SolanaSDK.connect({ network: 'devnet', wallet });
 
@@ -556,7 +556,7 @@ npm run lint
 
 <div align="center">
   <p>
-    <a href="https://zkcreditscore.io">Website</a> •
+    <a href="https://zkscore.credit">Website</a> •
     <a href="https://github.com/iamatulkumar67/CreditScore">Monorepo</a> •
     <a href="https://github.com/iamatulkumar67/zkcreditscore-sdk">SDK Repo</a>
   </p>
