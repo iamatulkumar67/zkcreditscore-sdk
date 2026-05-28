@@ -1,5 +1,5 @@
 {
-  "name": "@zkcreditscore/sdk",
+  "name": "zkcreditscore-sdk",
   "version": "0.1.0",
   "description": "ZKCreditScore Protocol SDK — Privacy-preserving credit scoring on Solana",
   "main": "./dist/cjs/index.js",

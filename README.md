@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>@zkcreditscore/sdk</h1>
+  <h1>zkcreditscore-sdk</h1>
   <p>
     <strong>ZKCreditScore Protocol SDK</strong>
   </p>
@@ -16,7 +16,7 @@
   </p>
 
   <p>
-    <img src="https://img.shields.io/npm/v/@zkcreditscore/sdk" alt="npm" />
+    <img src="https://img.shields.io/npm/v/zkcreditscore-sdk" alt="npm" />
     <img src="https://img.shields.io/badge/solana-v2.0-blue?logo=solana" alt="Solana" />
     <img src="https://img.shields.io/badge/anchor-v0.30.1-purple" alt="Anchor" />
     <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
@@ -27,7 +27,7 @@
 
 ## Overview
 
-`@zkcreditscore/sdk` is the official TypeScript SDK for the **ZKCreditScore Protocol** — a privacy-preserving decentralized lending protocol on Solana. It provides client-side ZK proof generation (via snarkjs + Circom Groth16), Solana program interaction via Anchor, and DeFi integration utilities.
+`zkcreditscore-sdk` is the official TypeScript SDK for the **ZKCreditScore Protocol** — a privacy-preserving decentralized lending protocol on Solana. It provides client-side ZK proof generation (via snarkjs + Circom Groth16), Solana program interaction via Anchor, and DeFi integration utilities.
 
 The SDK enables developers to:
 - **Generate ZK proofs** client-side claiming credit score, income, DTI, and default history
@@ -41,7 +41,7 @@ The SDK enables developers to:
 ## Installation
 
 ```bash
-npm install @zkcreditscore/sdk
+npm install zkcreditscore-sdk
 ```
 
 ### Peer Dependencies
@@ -66,7 +66,7 @@ import {
   SolanaSDK,
   ZKCreditIntegrationSDK,
   ClaimType,
-} from '@zkcreditscore/sdk';
+} from 'zkcreditscore-sdk';
 
 // 1. Initialize the ZK Prover (client-side proof generation)
 const prover = new ZKProver();
@@ -128,7 +128,7 @@ console.log('Max LTV ratio:', ltv.ltvRatio);
 Client-side ZK proof generation using Groth16 on the BN128 curve. Generates proofs locally via snarkjs WASM, targeting <30s generation time.
 
 ```typescript
-import { ZKProver, ClaimType } from '@zkcreditscore/sdk';
+import { ZKProver, ClaimType } from 'zkcreditscore-sdk';
 
 const prover = new ZKProver();
 await prover.init({
@@ -168,7 +168,7 @@ const compositeProof = await prover.generateCompositeProof([
 Aggregator that initializes all three program clients from a single `AnchorProvider`.
 
 ```typescript
-import { SolanaSDK } from '@zkcreditscore/sdk';
+import { SolanaSDK } from 'zkcreditscore-sdk';
 
 // Constructor — auto-connects to devnet
 const sdk = new SolanaSDK({ network: 'devnet' });
@@ -274,7 +274,7 @@ Interacts with the `zkc-token` SPL Token-2022 program. Manages ZKCR token stakin
 REST API client for querying off-chain protocol data.
 
 ```typescript
-import { ZKCreditAPI } from '@zkcreditscore/sdk';
+import { ZKCreditAPI } from 'zkcreditscore-sdk';
 
 const api = new ZKCreditAPI({
   baseUrl: 'https://api.zkscore.credit/v1',
@@ -303,7 +303,7 @@ const leaderboard = await api.getLeaderboard();
 High-level integration layer for DeFi protocols that want to offer credit-aware lending.
 
 ```typescript
-import { ZKCreditIntegrationSDK, ClaimType } from '@zkcreditscore/sdk';
+import { ZKCreditIntegrationSDK, ClaimType } from 'zkcreditscore-sdk';
 
 const integration = new ZKCreditIntegrationSDK(solanaSDK);
 
@@ -441,7 +441,7 @@ ACCOUNT_SEEDS = {
 ### Full Flow: Prove, Verify, Borrow
 
 ```typescript
-import { ZKProver, SolanaSDK, ClaimType, CreditTier } from '@zkcreditscore/sdk';
+import { ZKProver, SolanaSDK, ClaimType, CreditTier } from 'zkcreditscore-sdk';
 
 async function fullFlow(wallet: any) {
   // Initialize
@@ -478,7 +478,7 @@ async function fullFlow(wallet: any) {
 ### Check Credential Without Wallet
 
 ```typescript
-import { SolanaSDK } from '@zkcreditscore/sdk';
+import { SolanaSDK } from 'zkcreditscore-sdk';
 
 const solana = new SolanaSDK({ network: 'devnet' });
 const tier = await solana.verifier.getCreditTier(
@@ -490,7 +490,7 @@ console.log('Tier:', tier.tier, 'Expires:', tier.expiresAt);
 ### Query Protocol Statistics
 
 ```typescript
-import { ZKCreditAPI } from '@zkcreditscore/sdk';
+import { ZKCreditAPI } from 'zkcreditscore-sdk';
 
 const api = new ZKCreditAPI();
 const stats = await api.getStats();
@@ -502,7 +502,7 @@ const stats = await api.getStats();
 ```typescript
 import { Connection, PublicKey } from '@solana/web3.js';
 import { AnchorProvider } from '@coral-xyz/anchor';
-import { SolanaSDK } from '@zkcreditscore/sdk';
+import { SolanaSDK } from 'zkcreditscore-sdk';
 
 const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 const provider = new AnchorProvider(connection, wallet, { commitment: 'confirmed' });
@@ -544,7 +544,7 @@ npm run lint
 
 | Package | Registry |
 |---|---|
-| `@zkcreditscore/sdk` | [npm](https://www.npmjs.com/package/@zkcreditscore/sdk) |
+| `zkcreditscore-sdk` | [npm](https://www.npmjs.com/package/zkcreditscore-sdk) |
 
 ---
 
