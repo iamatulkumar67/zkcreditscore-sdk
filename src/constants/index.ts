@@ -7,7 +7,6 @@ export const SDK_VERSION = '0.1.0';
 export const SOLANA_PROGRAM_ID = {
   verifier: '9fx3329hTirtrGA77bQ3qTQMHgkcYbiMJTSbY1kSK1Kh',
   lendingPool: 'HbHw6ib3eCfxbV1tv7X817VZ9J9tR4ZLGpNEQJ2jYDQo',
-  credential: '9fx3329hTirtrGA77bQ3qTQMHgkcYbiMJTSbY1kSK1Kh',
   zkcToken: '4A1AR7H5VHQzwM7QuucYDHKTrQWt9HQ1GyEB4gh4pump',
   governance: '4FE94XY5Az6fS2PCBxd2PZtzPq5EiXYT5EFPzYj53QkT',
 };
@@ -153,7 +152,7 @@ export const ACCOUNT_SEEDS = {
 
 export const ZKC_DECIMALS = 9;
 export const ZKC_MIN_STAKE = 1_000_000_000_000;
-export const ZKC_TOTAL_SUPPLY = 1_000_000_000_000_000_000;
+export const ZKC_TOTAL_SUPPLY = '1000000000000000000';
 export const STAKING_REWARD_RATE_BPS = 500;
 export const SECONDS_IN_YEAR = 31_536_000;
 export const FEE_DISCOUNT_TIERS = [

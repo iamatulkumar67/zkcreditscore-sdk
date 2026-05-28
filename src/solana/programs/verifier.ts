@@ -1,11 +1,20 @@
-import { AnchorProvider, Program, Idl } from '@coral-xyz/anchor';
-import { PublicKey, TransactionSignature } from '@solana/web3.js';
+import { AnchorProvider, Program, Idl, BN } from '@coral-xyz/anchor';
+import { PublicKey, TransactionSignature, SystemProgram } from '@solana/web3.js';
 import { ZKProof, CreditTier, CredentialInfo, ClaimType } from '../../types';
 import { SOLANA_PROGRAM_ID } from '../../constants';
-import {
-  deriveCredentialPda,
-  deriveNullifierPda,
-} from '../utils';
+import { deriveCredentialPda, deriveNullifierPda, deriveConfigPda } from '../utils';
+
+// Nullifier on-chain is stored as a PDA seed (32 bytes), not as a PublicKey address.
+// The nullifier bytes are passed directly as the instruction argument.
+function parseNullifierBytes(nullifierHex: string): number[] {
+  const hex = nullifierHex.startsWith('0x') ? nullifierHex.slice(2) : nullifierHex;
+  const padded = hex.padStart(64, '0').slice(0, 64);
+  const bytes: number[] = [];
+  for (let i = 0; i < padded.length; i += 2) {
+    bytes.push(parseInt(padded.slice(i, i + 2), 16));
+  }
+  return bytes;
+}
 
 export class ZKVerifierClient {
   private program: Program;
@@ -27,10 +36,14 @@ export class ZKVerifierClient {
   ): Promise<TransactionSignature> {
     const user = owner || this.provider.publicKey!;
     const [credentialPda] = deriveCredentialPda(user);
-    const nullifierPubkey = new PublicKey(
-      proof.publicSignals.nullifier.slice(0, 32)
-    );
-    const [nullifierPda] = deriveNullifierPda(nullifierPubkey);
+
+    const nullifierBytes = parseNullifierBytes(proof.publicSignals.nullifier);
+    const nullifierKey = new PublicKey(nullifierBytes.slice(0, 32));
+    const [nullifierPda] = deriveNullifierPda(nullifierKey);
+
+    const claimType = proof.publicSignals.claimType;
+    const threshold = new BN(proof.publicSignals.threshold);
+    const expiry = new BN(proof.publicSignals.expiryTimestamp);
 
     const tx = await this.program.methods
       .verifyAndIssueCredential(
@@ -40,17 +53,17 @@ export class ZKVerifierClient {
           piC: proof.proof.pi_c,
         },
         {
-          claimType: proof.publicSignals.claimType,
-          threshold: BigInt(proof.publicSignals.threshold),
-          expiry: BigInt(proof.publicSignals.expiryTimestamp),
-          nullifier: Array.from(nullifierPubkey.toBytes()),
+          claimType,
+          threshold,
+          expiry,
+          nullifier: nullifierBytes.slice(0, 32),
         }
       )
       .accounts({
-        user: user,
+        user,
         credential: credentialPda,
         nullifier: nullifierPda,
-        systemProgram: PublicKey.default,
+        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -64,16 +77,16 @@ export class ZKVerifierClient {
   ): Promise<boolean> {
     const [credentialPda] = deriveCredentialPda(user);
     try {
-      const account = await this.program.account.credential.fetch(
-        credentialPda
-      );
+      const account = await this.program.account.credential.fetch(credentialPda);
       const data = account as any;
       const now = Math.floor(Date.now() / 1000);
 
       if (data.expiresAt.toNumber() < now) return false;
-      if (data.claimType !== claimType) return false;
-      if (requiredThreshold && data.threshold < requiredThreshold)
-        return false;
+
+      const claimBit = 1 << claimType;
+      if ((data.claimsBitmap & claimBit) === 0) return false;
+
+      if (requiredThreshold && data.threshold.toNumber() < requiredThreshold) return false;
 
       return true;
     } catch {
@@ -84,9 +97,7 @@ export class ZKVerifierClient {
   async getCreditTier(user: PublicKey): Promise<CredentialInfo> {
     const [credentialPda] = deriveCredentialPda(user);
     try {
-      const account = await this.program.account.credential.fetch(
-        credentialPda
-      );
+      const account = await this.program.account.credential.fetch(credentialPda);
       const data = account as any;
       const now = Math.floor(Date.now() / 1000);
 
@@ -110,11 +121,9 @@ export class ZKVerifierClient {
     const [credentialPda] = deriveCredentialPda(user);
     const tx = await this.program.methods
       .revokeCredential()
-      .accounts({
-        user: user,
-        credential: credentialPda,
-      })
+      .accounts({ user, credential: credentialPda })
       .rpc();
+
     return tx;
   }
 }

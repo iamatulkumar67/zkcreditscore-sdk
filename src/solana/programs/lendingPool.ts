@@ -1,15 +1,16 @@
-import { AnchorProvider, Program, Idl } from '@coral-xyz/anchor';
+import { AnchorProvider, Program, Idl, BN } from '@coral-xyz/anchor';
 import {
   PublicKey,
   TransactionSignature,
+  SystemProgram,
 } from '@solana/web3.js';
-import { CreditTier, LoanTerms, LoanRecord } from '../../types';
+import { TOKEN_2022_PROGRAM_ID, getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { CreditTier } from '../../types';
 import { SOLANA_PROGRAM_ID } from '../../constants';
 import {
   deriveLoanPda,
   deriveLendingPoolPda,
   deriveVaultPda,
-  deriveConfigPda,
   deriveCredentialPda,
 } from '../utils';
 
@@ -82,21 +83,32 @@ export class LendingPoolClient {
     const [poolPda] = deriveLendingPoolPda(borrowMint);
     const [collateralVault] = deriveVaultPda(collateralMint);
     const [borrowVault] = deriveVaultPda(borrowMint);
+    const [credentialPda] = deriveCredentialPda(user);
+
+    const userCollateralAta = getAssociatedTokenAddressSync(collateralMint, user, false, TOKEN_2022_PROGRAM_ID);
+    const userBorrowAta = getAssociatedTokenAddressSync(borrowMint, user, false, TOKEN_2022_PROGRAM_ID);
+
+    const verifierProgram = new PublicKey(SOLANA_PROGRAM_ID.verifier);
 
     const tx = await this.program.methods
       .depositAndBorrow(
-        BigInt(collateralAmount),
-        BigInt(borrowAmount)
+        new BN(collateralAmount),
+        new BN(borrowAmount)
       )
       .accounts({
-        user: user,
-        collateralMint: collateralMint,
-        borrowMint: borrowMint,
+        user,
+        collateralMint,
+        borrowMint,
         pool: poolPda,
-        collateralVault: collateralVault,
-        borrowVault: borrowVault,
-        tokenProgram: PublicKey.default,
-        systemProgram: PublicKey.default,
+        vaultCollateral: collateralVault,
+        vaultBorrow: borrowVault,
+        userCollateralAta,
+        userBorrowAta,
+        credential: credentialPda,
+        verifierProgram,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+        rent: PublicKey.default,
       })
       .rpc();
 
@@ -105,16 +117,24 @@ export class LendingPoolClient {
 
   async repay(
     loanId: number,
-    amount: number
+    amount: number,
+    borrowMint: PublicKey
   ): Promise<TransactionSignature> {
     const user = this.provider.publicKey!;
     const [loanPda] = deriveLoanPda(user, loanId);
+    const [vaultBorrow] = deriveVaultPda(borrowMint);
+    const userBorrowAta = getAssociatedTokenAddressSync(borrowMint, user, false, TOKEN_2022_PROGRAM_ID);
 
     const tx = await this.program.methods
-      .repay(BigInt(amount))
+      .repay(new BN(loanId), new BN(amount))
       .accounts({
-        user: user,
+        user,
+        borrowMint,
         loan: loanPda,
+        borrower: user,
+        vaultBorrow,
+        userBorrowAta,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
       })
       .rpc();
 
@@ -123,19 +143,33 @@ export class LendingPoolClient {
 
   async liquidate(
     borrower: PublicKey,
-    _collateralMint: PublicKey,
-    _debtMint: PublicKey,
+    collateralMint: PublicKey,
+    borrowMint: PublicKey,
+    loanId: number,
     debtToCover: number
   ): Promise<TransactionSignature> {
     const liquidator = this.provider.publicKey!;
-    const [loanPda] = deriveLoanPda(borrower, 0);
+    const [loanPda] = deriveLoanPda(borrower, loanId);
+    const [poolPda] = deriveLendingPoolPda(borrowMint);
+    const [vaultCollateral] = deriveVaultPda(collateralMint);
+    const [vaultBorrow] = deriveVaultPda(borrowMint);
+    const liquidatorBorrowAta = getAssociatedTokenAddressSync(borrowMint, liquidator, false, TOKEN_2022_PROGRAM_ID);
+    const liquidatorCollateralAta = getAssociatedTokenAddressSync(collateralMint, liquidator, false, TOKEN_2022_PROGRAM_ID);
 
     const tx = await this.program.methods
-      .liquidate(BigInt(debtToCover))
+      .liquidate(new BN(loanId), new BN(debtToCover))
       .accounts({
-        liquidator: liquidator,
-        borrower: borrower,
+        liquidator,
+        collateralMint,
+        borrowMint,
+        pool: poolPda,
         loan: loanPda,
+        borrower,
+        vaultCollateral,
+        vaultBorrow,
+        liquidatorBorrowAta,
+        liquidatorCollateralAta,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
       })
       .rpc();
 

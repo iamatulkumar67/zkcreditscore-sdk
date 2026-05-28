@@ -8,7 +8,7 @@ import {
   TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from '@solana/spl-token';
-import { SOLANA_PROGRAM_ID, ZKC_DECIMALS, ZKC_TOTAL_SUPPLY } from '../../constants';
+import { SOLANA_PROGRAM_ID, ZKC_TOTAL_SUPPLY } from '../../constants';
 import { StakeAccount } from '../../types';
 
 export class ZKCTokenClient {

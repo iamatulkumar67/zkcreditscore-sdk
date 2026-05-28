@@ -6,7 +6,7 @@ export function deriveCredentialPda(
 ): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [Buffer.from(ACCOUNT_SEEDS.credential), owner.toBuffer()],
-    new PublicKey(SOLANA_PROGRAM_ID.credential)
+    new PublicKey(SOLANA_PROGRAM_ID.verifier)
   );
 }
 

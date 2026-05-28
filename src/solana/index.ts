@@ -1,5 +1,5 @@
 import { AnchorProvider } from '@coral-xyz/anchor';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 import { ZKVerifierClient } from './programs/verifier';
 import { LendingPoolClient } from './programs/lendingPool';
 import { ZKCTokenClient } from './programs/token';
@@ -17,23 +17,8 @@ export class SolanaSDK {
   public zkcToken: ZKCTokenClient;
   public provider: AnchorProvider;
 
-  constructor(config: SolanaSDKConfig) {
-    if (config.provider) {
-      this.provider = config.provider;
-    } else {
-      const connection =
-        config.connection ||
-        new Connection(
-          NETWORK_URLS[config.network || 'devnet'],
-          'confirmed'
-        );
-      this.provider = new AnchorProvider(
-        connection,
-        {} as any,
-        { commitment: 'confirmed' }
-      );
-    }
-
+  constructor(config: SolanaSDKConfig & { provider: AnchorProvider }) {
+    this.provider = config.provider;
     this.verifier = new ZKVerifierClient(this.provider);
     this.lendingPool = new LendingPoolClient(this.provider);
     this.zkcToken = new ZKCTokenClient(this.provider);

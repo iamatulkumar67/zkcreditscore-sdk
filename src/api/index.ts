@@ -1,4 +1,4 @@
-import { ProtocolStats, LendingPoolInfo, CredentialInfo, CreditTier } from '../types';
+import { ProtocolStats, LendingPoolInfo, CredentialInfo } from '../types';
 
 export interface APIClientConfig {
   baseUrl?: string;
