@@ -1,5 +1,6 @@
 export { ZKProver } from './prover';
-export { SolanaSDK, SolanaSDKConfig } from './solana';
+export { SolanaSDK } from './solana';
+export type { SolanaSDKConfig } from './solana';
 export { ZKVerifierClient } from './solana/programs/verifier';
 export { LendingPoolClient } from './solana/programs/lendingPool';
 export { ZKCTokenClient } from './solana/programs/token';
