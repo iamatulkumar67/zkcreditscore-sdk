@@ -18,7 +18,12 @@ export class ZKCTokenClient {
   constructor(provider: AnchorProvider, idl?: Idl) {
     this.provider = provider;
     const programId = new PublicKey(SOLANA_PROGRAM_ID.zkcToken);
-    this.program = new Program(idl || ({} as Idl), programId, provider);
+    const programIdl: Idl = idl || {
+      address: programId.toBase58(),
+      metadata: { name: 'zkc-token', version: '0.1.0', spec: '0.1.0' },
+      instructions: [],
+    };
+    this.program = new Program(programIdl, provider);
   }
 
   get programId(): PublicKey {
@@ -191,7 +196,7 @@ export class ZKCTokenClient {
   async getStakeInfo(user?: PublicKey): Promise<StakeAccount | null> {
     const owner = user || this.provider.publicKey!;
     try {
-      const account = await this.program.account.stakeAccount.fetch(
+      const account = await (this.program.account as any).stakeAccount.fetch(
         this.stakeAccountPda(owner)
       );
       return account as unknown as StakeAccount;

@@ -21,7 +21,12 @@ export class LendingPoolClient {
   constructor(provider: AnchorProvider, idl?: Idl) {
     this.provider = provider;
     const programId = new PublicKey(SOLANA_PROGRAM_ID.lendingPool);
-    this.program = new Program(idl || ({} as Idl), programId, provider);
+    const programIdl: Idl = idl || {
+      address: programId.toBase58(),
+      metadata: { name: 'zk-lending-pool', version: '0.1.0', spec: '0.1.0' },
+      instructions: [],
+    };
+    this.program = new Program(programIdl, provider);
   }
 
   get programId(): PublicKey {
@@ -36,7 +41,7 @@ export class LendingPoolClient {
     const [poolPda] = deriveLendingPoolPda(borrowMint);
 
     try {
-      const poolAccount = await this.program.account.lendingPool.fetch(
+      const poolAccount = await (this.program.account as any).lendingPool.fetch(
         poolPda
       ) as any;
       const credentialExists = await this.provider.connection.getAccountInfo(
@@ -44,7 +49,7 @@ export class LendingPoolClient {
       );
 
       if (credentialExists) {
-        const credAccount = await this.program.account.credential.fetch(
+        const credAccount = await (this.program.account as any).credential.fetch(
           credentialPda
         ) as any;
         const tier: CreditTier = credAccount.creditTier || CreditTier.None;
@@ -179,7 +184,7 @@ export class LendingPoolClient {
   async getUtilizationRate(asset: PublicKey): Promise<number> {
     const [poolPda] = deriveLendingPoolPda(asset);
     try {
-      const pool = await this.program.account.lendingPool.fetch(poolPda) as any;
+      const pool = await (this.program.account as any).lendingPool.fetch(poolPda) as any;
       const totalDeposits = Number(pool.totalDeposits);
       const totalBorrows = Number(pool.totalBorrows);
       if (totalDeposits === 0) return 0;

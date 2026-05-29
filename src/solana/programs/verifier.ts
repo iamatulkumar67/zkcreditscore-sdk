@@ -23,7 +23,12 @@ export class ZKVerifierClient {
   constructor(provider: AnchorProvider, idl?: Idl) {
     this.provider = provider;
     const programId = new PublicKey(SOLANA_PROGRAM_ID.verifier);
-    this.program = new Program(idl || ({} as Idl), programId, provider);
+    const programIdl: Idl = idl || {
+      address: programId.toBase58(),
+      metadata: { name: 'zk-credit-verifier', version: '0.1.0', spec: '0.1.0' },
+      instructions: [],
+    };
+    this.program = new Program(programIdl, provider);
   }
 
   get programId(): PublicKey {
@@ -77,7 +82,7 @@ export class ZKVerifierClient {
   ): Promise<boolean> {
     const [credentialPda] = deriveCredentialPda(user);
     try {
-      const account = await this.program.account.credential.fetch(credentialPda);
+      const account = await (this.program.account as any).credential.fetch(credentialPda);
       const data = account as any;
       const now = Math.floor(Date.now() / 1000);
 
@@ -97,7 +102,7 @@ export class ZKVerifierClient {
   async getCreditTier(user: PublicKey): Promise<CredentialInfo> {
     const [credentialPda] = deriveCredentialPda(user);
     try {
-      const account = await this.program.account.credential.fetch(credentialPda);
+      const account = await (this.program.account as any).credential.fetch(credentialPda);
       const data = account as any;
       const now = Math.floor(Date.now() / 1000);
 

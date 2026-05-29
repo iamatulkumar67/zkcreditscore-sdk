@@ -8,6 +8,22 @@ export { ZKCreditAPI } from './api';
 export type { APIClientConfig } from './api';
 export { ZKCreditIntegrationSDK } from './integration';
 
+export { PlaidConnector, AccountAggregatorConnector, PDFBankStatementParser } from './connectors';
+export type {
+  PlaidConnectConfig,
+  PlaidTransaction,
+  PlaidIncomeData,
+  PlaidCreditScoreData,
+  AConnectConfig,
+  AAHeldAccount,
+  AAStandingInstruction,
+  AATransaction,
+  AACreditReport,
+  ParsedStatement,
+  PDFTransaction,
+  PDFMetrics,
+} from './connectors';
+
 export * from './types';
 export * from './constants';
 export {
