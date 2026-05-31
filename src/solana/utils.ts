@@ -47,16 +47,23 @@ export function deriveLendingPoolPda(
 export function deriveVaultPda(
   mint: PublicKey
 ): [PublicKey, number] {
+  // Vaults are token accounts with the lending pool PDA as authority.
+  // This derives the pool PDA which acts as vault authority.
   return PublicKey.findProgramAddressSync(
-    [Buffer.from(ACCOUNT_SEEDS.vault), mint.toBuffer()],
+    [Buffer.from(ACCOUNT_SEEDS.lendingPool), mint.toBuffer()],
     new PublicKey(SOLANA_PROGRAM_ID.lendingPool)
   );
 }
 
-export function deriveConfigPda(): [PublicKey, number] {
+export function deriveConfigPda(program: 'verifier' | 'lendingPool' | 'zkcToken' | 'governance' = 'verifier'): [PublicKey, number] {
+  const seed = program === 'governance' ? 'governance-config' : 'config';
+  const programId = program === 'governance' ? SOLANA_PROGRAM_ID.governance :
+    program === 'zkcToken' ? SOLANA_PROGRAM_ID.zkcToken :
+    program === 'lendingPool' ? SOLANA_PROGRAM_ID.lendingPool :
+    SOLANA_PROGRAM_ID.verifier;
   return PublicKey.findProgramAddressSync(
-    [Buffer.from(ACCOUNT_SEEDS.config)],
-    new PublicKey(SOLANA_PROGRAM_ID.lendingPool)
+    [Buffer.from(seed)],
+    new PublicKey(programId)
   );
 }
 

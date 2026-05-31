@@ -1,0 +1,26 @@
+{
+  "address": "AdeWp5SXbwMtb3Mr9FTfpygPGzHoTdGqxAu3EKmmXRTQ",
+  "metadata": { "name": "zkc_token", "version": "0.1.0", "spec": "0.1.0" },
+  "instructions": [
+    { "name": "initialize_token", "discriminator": [166, 236, 91, 199, 12, 150, 44, 210], "accounts": [{ "name": "authority", "writable": true, "signer": true }, { "name": "config", "writable": true }, { "name": "mint", "writable": true }, { "name": "mint_authority" }, { "name": "token_program" }, { "name": "system_program", "address": "11111111111111111111111111111111" }], "args": [{ "name": "total_supply", "type": "u64" }] },
+    { "name": "stake", "discriminator": [206, 176, 202, 18, 200, 209, 179, 108], "accounts": [{ "name": "staker", "writable": true, "signer": true }, { "name": "stake_account", "writable": true }, { "name": "staker_token_account", "writable": true }, { "name": "vault", "writable": true }, { "name": "config" }, { "name": "token_program" }, { "name": "system_program", "address": "11111111111111111111111111111111" }], "args": [{ "name": "amount", "type": "u64" }] },
+    { "name": "unstake", "discriminator": [90, 95, 107, 42, 205, 124, 50, 225], "accounts": [{ "name": "staker", "writable": true, "signer": true }, { "name": "stake_account", "writable": true }, { "name": "staker_token_account", "writable": true }, { "name": "vault", "writable": true }, { "name": "vault_authority" }, { "name": "config" }, { "name": "token_program" }], "args": [{ "name": "amount", "type": "u64" }] },
+    { "name": "claim_rewards", "discriminator": [4, 144, 132, 71, 116, 23, 151, 80], "accounts": [{ "name": "staker", "writable": true, "signer": true }, { "name": "stake_account", "writable": true }, { "name": "staker_token_account", "writable": true }, { "name": "mint", "writable": true }, { "name": "mint_authority" }, { "name": "config" }, { "name": "token_program" }], "args": [] },
+    { "name": "get_fee_discount", "discriminator": [55, 12, 88, 190, 100, 45, 200, 3], "accounts": [{ "name": "user", "signer": true }, { "name": "stake_account" }, { "name": "credential" }], "args": [] }
+  ],
+  "accounts": [
+    { "name": "TokenConfig", "discriminator": [200, 88, 3, 55, 190, 100, 12, 45] },
+    { "name": "StakeAccount", "discriminator": [88, 3, 55, 190, 100, 12, 45, 200] }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InsufficientStakeAmount", "msg": "Minimum stake amount not met" },
+    { "code": 6001, "name": "InsufficientBalance", "msg": "Insufficient token balance" },
+    { "code": 6002, "name": "NoRewardsAvailable", "msg": "No rewards to claim" },
+    { "code": 6003, "name": "TokenPaused", "msg": "Token operations paused" },
+    { "code": 6004, "name": "Unauthorized", "msg": "Unauthorized" }
+  ],
+  "types": [
+    { "name": "TokenConfig", "type": { "kind": "struct", "fields": [{ "name": "authority", "type": "pubkey" }, { "name": "mint", "type": "pubkey" }, { "name": "total_supply", "type": "u64" }, { "name": "decimals", "type": "u8" }, { "name": "paused", "type": "bool" }, { "name": "bump", "type": "u8" }] } },
+    { "name": "StakeAccount", "type": { "kind": "struct", "fields": [{ "name": "owner", "type": "pubkey" }, { "name": "amount", "type": "u64" }, { "name": "staked_at", "type": "u64" }, { "name": "last_reward_claim", "type": "u64" }, { "name": "accumulated_rewards", "type": "u64" }, { "name": "bump", "type": "u8" }] } }
+  ]
+}

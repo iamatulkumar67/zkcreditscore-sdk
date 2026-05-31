@@ -1,0 +1,31 @@
+{
+  "address": "4FE94XY5Az6fS2PCBxd2PZtzPq5EiXYT5EFPzYj53QkT",
+  "metadata": { "name": "zk_governance", "version": "0.1.0", "spec": "0.1.0" },
+  "instructions": [
+    { "name": "initialize", "discriminator": [175, 175, 109, 31, 13, 152, 155, 237], "accounts": [{ "name": "authority", "writable": true, "signer": true }, { "name": "config", "writable": true }, { "name": "system_program", "address": "11111111111111111111111111111111" }], "args": [] },
+    { "name": "create_proposal", "discriminator": [132, 116, 68, 174, 216, 160, 198, 22], "accounts": [{ "name": "proposer", "writable": true, "signer": true }, { "name": "config", "writable": true }, { "name": "proposal", "writable": true }, { "name": "stake_account" }, { "name": "system_program", "address": "11111111111111111111111111111111" }], "args": [{ "name": "description", "type": "string" }, { "name": "voting_period", "type": "i64" }, { "name": "proposal_type", "type": "u8" }] },
+    { "name": "cast_vote", "discriminator": [20, 212, 15, 189, 69, 180, 174, 109], "accounts": [{ "name": "voter", "writable": true, "signer": true }, { "name": "proposal", "writable": true }, { "name": "vote_record", "writable": true }, { "name": "stake_account" }, { "name": "system_program", "address": "11111111111111111111111111111111" }], "args": [{ "name": "support", "type": "bool" }] },
+    { "name": "finalize_proposal", "discriminator": [75, 200, 88, 3, 55, 190, 100, 12], "accounts": [{ "name": "authority", "writable": true, "signer": true }, { "name": "proposal", "writable": true }, { "name": "config" }], "args": [] },
+    { "name": "execute_proposal", "discriminator": [186, 60, 116, 133, 108, 128, 111, 28], "accounts": [{ "name": "executor", "writable": true, "signer": true }, { "name": "proposal", "writable": true }, { "name": "config" }], "args": [] }
+  ],
+  "accounts": [
+    { "name": "GovernanceConfig", "discriminator": [3, 55, 190, 100, 12, 45, 200, 88] },
+    { "name": "Proposal", "discriminator": [55, 190, 100, 12, 45, 200, 88, 3] },
+    { "name": "VoteRecord", "discriminator": [190, 100, 12, 45, 200, 88, 3, 55] }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InsufficientStake", "msg": "Insufficient stake to create proposal" },
+    { "code": 6001, "name": "VotingPeriodEnded", "msg": "Voting period has ended" },
+    { "code": 6002, "name": "VotingPeriodActive", "msg": "Voting period still active" },
+    { "code": 6003, "name": "AlreadyVoted", "msg": "Already voted on this proposal" },
+    { "code": 6004, "name": "ProposalNotPassed", "msg": "Proposal did not pass" },
+    { "code": 6005, "name": "TimelockNotExpired", "msg": "Timelock period not expired" },
+    { "code": 6006, "name": "GovernancePaused", "msg": "Governance is paused" },
+    { "code": 6007, "name": "Unauthorized", "msg": "Unauthorized" }
+  ],
+  "types": [
+    { "name": "GovernanceConfig", "type": { "kind": "struct", "fields": [{ "name": "governance_authority", "type": "pubkey" }, { "name": "proposal_count", "type": "u64" }, { "name": "paused", "type": "bool" }, { "name": "bump", "type": "u8" }] } },
+    { "name": "Proposal", "type": { "kind": "struct", "fields": [{ "name": "proposer", "type": "pubkey" }, { "name": "description", "type": "string" }, { "name": "proposal_type", "type": "u8" }, { "name": "votes_for", "type": "u64" }, { "name": "votes_against", "type": "u64" }, { "name": "start_time", "type": "i64" }, { "name": "end_time", "type": "i64" }, { "name": "status", "type": "u8" }, { "name": "executed_at", "type": "i64" }, { "name": "bump", "type": "u8" }] } },
+    { "name": "VoteRecord", "type": { "kind": "struct", "fields": [{ "name": "voter", "type": "pubkey" }, { "name": "proposal", "type": "pubkey" }, { "name": "support", "type": "bool" }, { "name": "weight", "type": "u64" }, { "name": "bump", "type": "u8" }] } }
+  ]
+}

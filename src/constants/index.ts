@@ -7,7 +7,7 @@ export const SDK_VERSION = '0.1.0';
 export const SOLANA_PROGRAM_ID = {
   verifier: '9fx3329hTirtrGA77bQ3qTQMHgkcYbiMJTSbY1kSK1Kh',
   lendingPool: 'HbHw6ib3eCfxbV1tv7X817VZ9J9tR4ZLGpNEQJ2jYDQo',
-  zkcToken: '4A1AR7H5VHQzwM7QuucYDHKTrQWt9HQ1GyEB4gh4pump',
+  zkcToken: 'AdeWp5SXbwMtb3Mr9FTfpygPGzHoTdGqxAu3EKmmXRTQ',
   governance: '4FE94XY5Az6fS2PCBxd2PZtzPq5EiXYT5EFPzYj53QkT',
 };
 
@@ -141,13 +141,16 @@ export const ACCOUNT_SEEDS = {
   credential: 'credential',
   loan: 'loan',
   lendingPool: 'lending-pool',
-  vault: 'vault',
   config: 'config',
   nullifier: 'nullifier',
-  mint: 'mint',
+  mintAuthority: 'mint-authority',
+  vaultAuthority: 'vault-authority',
   stake: 'stake',
   stakingVault: 'staking-vault',
   treasury: 'treasury',
+  governanceConfig: 'governance-config',
+  governancePda: 'governance-pda',
+  proposal: 'proposal',
 };
 
 export const ZKC_DECIMALS = 9;

@@ -1,0 +1,165 @@
+{
+  "address": "9fx3329hTirtrGA77bQ3qTQMHgkcYbiMJTSbY1kSK1Kh",
+  "metadata": { "name": "zk_credit_verifier", "version": "0.1.0", "spec": "0.1.0" },
+  "instructions": [
+    {
+      "name": "initialize_config",
+      "discriminator": [208, 127, 21, 1, 194, 190, 196, 70],
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "config", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [99,111,110,102,105,103] }] } },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": []
+    },
+    {
+      "name": "verify_and_issue_credential",
+      "discriminator": [45, 188, 75, 216, 7, 127, 230, 15],
+      "accounts": [
+        { "name": "user", "writable": true, "signer": true },
+        { "name": "credential", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [99,114,101,100,101,110,116,105,97,108] }, { "kind": "account", "path": "user" }] } },
+        { "name": "nullifier", "writable": true },
+        { "name": "config", "pda": { "seeds": [{ "kind": "const", "value": [99,111,110,102,105,103] }] } },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "proof", "type": { "defined": { "name": "Groth16Proof" } } },
+        { "name": "claim", "type": { "defined": { "name": "CreditClaimData" } } }
+      ]
+    },
+    {
+      "name": "has_valid_credential",
+      "discriminator": [112, 45, 200, 55, 12, 88, 190, 3],
+      "accounts": [
+        { "name": "user", "signer": true },
+        { "name": "credential", "pda": { "seeds": [{ "kind": "const", "value": [99,114,101,100,101,110,116,105,97,108] }, { "kind": "account", "path": "user" }] } }
+      ],
+      "args": [
+        { "name": "claim_type_arg", "type": "u8" },
+        { "name": "required_threshold", "type": "u64" }
+      ]
+    },
+    {
+      "name": "revoke_credential",
+      "discriminator": [154, 42, 88, 90, 201, 55, 12, 7],
+      "accounts": [
+        { "name": "user", "writable": true, "signer": true },
+        { "name": "credential", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [99,114,101,100,101,110,116,105,97,108] }, { "kind": "account", "path": "user" }] } }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_config",
+      "discriminator": [29, 158, 252, 191, 10, 83, 219, 99],
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "config", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [99,111,110,102,105,103] }] } }
+      ],
+      "args": [
+        { "name": "new_config", "type": { "defined": { "name": "ConfigData" } } }
+      ]
+    }
+  ],
+  "accounts": [
+    { "name": "Credential", "discriminator": [241, 154, 109, 82, 168, 180, 64, 120] },
+    { "name": "Nullifier", "discriminator": [100, 12, 45, 200, 88, 3, 55, 190] },
+    { "name": "VerifierConfig", "discriminator": [55, 190, 100, 12, 45, 200, 88, 3] }
+  ],
+  "events": [
+    { "name": "CredentialIssued", "discriminator": [1, 2, 3, 4, 5, 6, 7, 8] },
+    { "name": "CredentialRevoked", "discriminator": [9, 10, 11, 12, 13, 14, 15, 16] },
+    { "name": "ConfigUpdated", "discriminator": [17, 18, 19, 20, 21, 22, 23, 24] }
+  ],
+  "errors": [
+    { "code": 6000, "name": "ProofExpired", "msg": "Proof has expired" },
+    { "code": 6001, "name": "NullifierAlreadyUsed", "msg": "Nullifier already used — duplicate proof submission" },
+    { "code": 6002, "name": "ProofVerificationFailed", "msg": "Groth16 proof verification failed" },
+    { "code": 6003, "name": "UnsupportedClaimType", "msg": "Unsupported claim type" },
+    { "code": 6004, "name": "NotCredentialOwner", "msg": "User is not the credential owner" },
+    { "code": 6005, "name": "Unauthorized", "msg": "Unauthorized access" },
+    { "code": 6006, "name": "VerificationKeyNotFound", "msg": "Verification key not found for this claim type" }
+  ],
+  "types": [
+    {
+      "name": "Credential",
+      "type": { "kind": "struct", "fields": [
+        { "name": "owner", "type": "pubkey" },
+        { "name": "credit_tier", "type": "u8" },
+        { "name": "claim_type", "type": "u8" },
+        { "name": "threshold", "type": "u64" },
+        { "name": "claims_bitmap", "type": "u8" },
+        { "name": "issued_at", "type": "u64" },
+        { "name": "expires_at", "type": "u64" },
+        { "name": "issuer", "type": "pubkey" },
+        { "name": "is_revoked", "type": "bool" },
+        { "name": "bump", "type": "u8" }
+      ]}
+    },
+    {
+      "name": "Nullifier",
+      "type": { "kind": "struct", "fields": [
+        { "name": "used", "type": "bool" },
+        { "name": "owner", "type": "pubkey" },
+        { "name": "claimed_at", "type": "u64" }
+      ]}
+    },
+    {
+      "name": "VerifierConfig",
+      "type": { "kind": "struct", "fields": [
+        { "name": "authority", "type": "pubkey" },
+        { "name": "min_proof_expiry", "type": "u64" },
+        { "name": "max_proof_expiry", "type": "u64" },
+        { "name": "supported_claim_types", "type": "u8" },
+        { "name": "paused", "type": "bool" }
+      ]}
+    },
+    {
+      "name": "Groth16Proof",
+      "type": { "kind": "struct", "fields": [
+        { "name": "pi_a", "type": { "array": ["u8", 64] } },
+        { "name": "pi_b", "type": { "array": ["u8", 128] } },
+        { "name": "pi_c", "type": { "array": ["u8", 64] } }
+      ]}
+    },
+    {
+      "name": "CreditClaimData",
+      "type": { "kind": "struct", "fields": [
+        { "name": "claim_type", "type": "u8" },
+        { "name": "threshold", "type": "u64" },
+        { "name": "expiry", "type": "u64" },
+        { "name": "nullifier", "type": { "array": ["u8", 32] } }
+      ]}
+    },
+    {
+      "name": "ConfigData",
+      "type": { "kind": "struct", "fields": [
+        { "name": "min_proof_expiry", "type": "u64" },
+        { "name": "max_proof_expiry", "type": "u64" },
+        { "name": "supported_claim_types", "type": "u8" },
+        { "name": "paused", "type": "bool" }
+      ]}
+    },
+    {
+      "name": "CredentialIssued",
+      "type": { "kind": "struct", "fields": [
+        { "name": "user", "type": "pubkey" },
+        { "name": "claim_type", "type": "u8" },
+        { "name": "tier", "type": "u8" },
+        { "name": "expiry", "type": "u64" }
+      ]}
+    },
+    {
+      "name": "CredentialRevoked",
+      "type": { "kind": "struct", "fields": [
+        { "name": "user", "type": "pubkey" },
+        { "name": "token_id", "type": "pubkey" }
+      ]}
+    },
+    {
+      "name": "ConfigUpdated",
+      "type": { "kind": "struct", "fields": [
+        { "name": "authority", "type": "pubkey" }
+      ]}
+    }
+  ]
+}

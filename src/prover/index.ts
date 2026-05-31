@@ -255,14 +255,14 @@ export class ZKProver {
 
   getCircuitId(claimType: ClaimType): string {
     const circuitMap: Record<ClaimType, string> = {
-      [ClaimType.CREDIT_SCORE_ABOVE]: 'credit-score-above',
-      [ClaimType.MONTHLY_INCOME_ABOVE]: 'income-above',
-      [ClaimType.DTI_BELOW]: 'dti-below',
-      [ClaimType.NO_DEFAULT_LAST_N_YEARS]: 'no-default',
-      [ClaimType.EMPLOYMENT_STATUS]: 'employment-status',
-      [ClaimType.COMPOSITE_TIER]: 'composite-tier',
+      [ClaimType.CREDIT_SCORE_ABOVE]: 'credit_score_above',
+      [ClaimType.MONTHLY_INCOME_ABOVE]: 'income_above',
+      [ClaimType.DTI_BELOW]: 'dti_below',
+      [ClaimType.NO_DEFAULT_LAST_N_YEARS]: 'no_default',
+      [ClaimType.EMPLOYMENT_STATUS]: 'credit_score_above',
+      [ClaimType.COMPOSITE_TIER]: 'composite_credit_score',
     };
-    return circuitMap[claimType] || 'unknown';
+    return circuitMap[claimType] || 'credit_score_above';
   }
 
   dispose(): void {

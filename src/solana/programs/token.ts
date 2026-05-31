@@ -3,9 +3,11 @@ import {
   PublicKey,
   TransactionSignature,
   SystemProgram,
+  Keypair,
 } from '@solana/web3.js';
 import {
   TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from '@solana/spl-token';
 import { SOLANA_PROGRAM_ID, ZKC_TOTAL_SUPPLY } from '../../constants';
@@ -14,6 +16,7 @@ import { StakeAccount } from '../../types';
 export class ZKCTokenClient {
   private program: Program;
   private provider: AnchorProvider;
+  private _mintAddress: PublicKey | null = null;
 
   constructor(provider: AnchorProvider, idl?: Idl) {
     this.provider = provider;
@@ -30,9 +33,9 @@ export class ZKCTokenClient {
     return this.program.programId;
   }
 
-  get mintPda(): PublicKey {
+  get mintAuthorityPda(): PublicKey {
     const [pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from('mint')],
+      [Buffer.from('mint-authority')],
       this.program.programId
     );
     return pda;
@@ -46,9 +49,9 @@ export class ZKCTokenClient {
     return pda;
   }
 
-  get stakingVaultPda(): PublicKey {
+  get vaultAuthorityPda(): PublicKey {
     const [pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from('staking-vault')],
+      [Buffer.from('vault-authority')],
       this.program.programId
     );
     return pda;
@@ -70,57 +73,67 @@ export class ZKCTokenClient {
     return pda;
   }
 
-  userTokenAccount(user: PublicKey): PublicKey {
-    return getAssociatedTokenAddressSync(
-      this.mintPda,
-      user,
-      false,
-      TOKEN_2022_PROGRAM_ID
-    );
+  get mintAddress(): PublicKey | null {
+    return this._mintAddress;
   }
 
-  treasuryAta(): PublicKey {
-    return getAssociatedTokenAddressSync(
-      this.mintPda,
-      this.treasuryAuthorityPda,
-      true,
-      TOKEN_2022_PROGRAM_ID
-    );
+  setMintAddress(mint: PublicKey) {
+    this._mintAddress = mint;
   }
 
-  async initializeToken(authority?: PublicKey): Promise<TransactionSignature> {
+  async loadMintFromConfig(): Promise<PublicKey | null> {
+    try {
+      const config = await (this.program.account as any).tokenConfig.fetch(this.configPda);
+      this._mintAddress = (config as any).mint;
+      return this._mintAddress;
+    } catch {
+      return null;
+    }
+  }
+
+  userTokenAccount(user: PublicKey, mint: PublicKey): PublicKey {
+    return getAssociatedTokenAddressSync(mint, user, false, TOKEN_2022_PROGRAM_ID);
+  }
+
+  treasuryAta(mint: PublicKey): PublicKey {
+    return getAssociatedTokenAddressSync(mint, this.treasuryAuthorityPda, true, TOKEN_2022_PROGRAM_ID);
+  }
+
+  async initializeToken(mintKeypair: Keypair, authority?: PublicKey): Promise<TransactionSignature> {
     const user = authority || this.provider.publicKey!;
+    this._mintAddress = mintKeypair.publicKey;
 
     const tx = await this.program.methods
-      .initializeToken(new BN(ZKC_TOTAL_SUPPLY.toString()))
+      .initializeToken(new BN(ZKC_TOTAL_SUPPLY))
       .accounts({
         authority: user,
-        mint: this.mintPda,
-        mintAuthority: this.mintPda,
-        treasury: this.treasuryAta(),
+        mint: mintKeypair.publicKey,
+        mintAuthority: this.mintAuthorityPda,
+        treasury: this.treasuryAta(mintKeypair.publicKey),
         treasuryAuthority: this.treasuryAuthorityPda,
         config: this.configPda,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       })
+      .signers([mintKeypair])
       .rpc();
 
     return tx;
   }
 
-  async stakeTokens(
-    amount: number,
-    user?: PublicKey
-  ): Promise<TransactionSignature> {
+  async stakeTokens(amount: number, user?: PublicKey): Promise<TransactionSignature> {
     const owner = user || this.provider.publicKey!;
+    const mint = this._mintAddress!;
 
     const tx = await this.program.methods
       .stakeTokens(new BN(amount.toString()))
       .accounts({
         user: owner,
-        userTokenAccount: this.userTokenAccount(owner),
-        mint: this.mintPda,
-        stakingVault: this.stakingVaultPda,
+        userTokenAccount: this.userTokenAccount(owner, mint),
+        mint,
+        stakingVault: getAssociatedTokenAddressSync(mint, this.vaultAuthorityPda, true, TOKEN_2022_PROGRAM_ID),
+        vaultAuthority: this.vaultAuthorityPda,
         stakeAccount: this.stakeAccountPda(owner),
         config: this.configPda,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -131,23 +144,22 @@ export class ZKCTokenClient {
     return tx;
   }
 
-  async unstakeTokens(
-    amount: number,
-    user?: PublicKey
-  ): Promise<TransactionSignature> {
+  async unstakeTokens(amount: number, user?: PublicKey): Promise<TransactionSignature> {
     const owner = user || this.provider.publicKey!;
+    const mint = this._mintAddress!;
 
     const tx = await this.program.methods
       .unstakeTokens(new BN(amount.toString()))
       .accounts({
         user: owner,
-        userTokenAccount: this.userTokenAccount(owner),
-        mint: this.mintPda,
-        stakingVault: this.stakingVaultPda,
+        userTokenAccount: this.userTokenAccount(owner, mint),
+        mint,
+        mintAuthority: this.mintAuthorityPda,
+        stakingVault: getAssociatedTokenAddressSync(mint, this.vaultAuthorityPda, true, TOKEN_2022_PROGRAM_ID),
+        vaultAuthority: this.vaultAuthorityPda,
         stakeAccount: this.stakeAccountPda(owner),
         config: this.configPda,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -156,18 +168,18 @@ export class ZKCTokenClient {
 
   async claimRewards(user?: PublicKey): Promise<TransactionSignature> {
     const owner = user || this.provider.publicKey!;
+    const mint = this._mintAddress!;
 
     const tx = await this.program.methods
       .claimRewards()
       .accounts({
         user: owner,
-        userTokenAccount: this.userTokenAccount(owner),
-        mint: this.mintPda,
-        mintAuthority: this.mintPda,
+        userTokenAccount: this.userTokenAccount(owner, mint),
+        mint,
+        mintAuthority: this.mintAuthorityPda,
         stakeAccount: this.stakeAccountPda(owner),
         config: this.configPda,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -176,7 +188,6 @@ export class ZKCTokenClient {
 
   async getFeeDiscount(user?: PublicKey): Promise<number> {
     const owner = user || this.provider.publicKey!;
-
     try {
       const discount = (await this.program.methods
         .getFeeDiscount()
@@ -186,7 +197,6 @@ export class ZKCTokenClient {
           config: this.configPda,
         })
         .view()) as any;
-
       return discount.toNumber();
     } catch {
       return 0;

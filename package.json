@@ -40,16 +40,19 @@
   "license": "MIT",
   "peerDependencies": {
     "@coral-xyz/anchor": "^0.30.0",
-    "@solana/web3.js": "^1.98.0",
-    "@solana/spl-token": "^0.4.0"
+    "@solana/spl-token": "^0.4.0",
+    "@solana/web3.js": "^1.98.0"
   },
   "optionalDependencies": {
-    "snarkjs": "^0.7.0",
-    "circomlibjs": "^0.1.0"
+    "circomlibjs": "^0.1.0",
+    "snarkjs": "^0.7.0"
   },
   "devDependencies": {
-    "typescript": "^5.5.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "jest": "^30.4.2",
     "rimraf": "^6.0.0",
-    "@types/node": "^22.0.0"
+    "ts-jest": "^29.4.11",
+    "typescript": "^5.5.0"
   }
 }
